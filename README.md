@@ -49,7 +49,7 @@ This is a full-featured fitness web application developed by a team of enthusias
 This project was collaboratively developed by:
 
 - **Bharath S B :- bharath2957s**
-- **Mayur H R :-Mayur H R**
+- **Mayur H R :-Mayurhr**
 - **Harsha U P**
 - **Karthik R**
 
