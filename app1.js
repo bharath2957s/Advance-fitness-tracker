@@ -34,7 +34,7 @@ const SALT_ROUNDS = 10;
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'bharath16',
+  password: process.env.DB_PASSWORD || 'your mysql password',
   database: process.env.DB_NAME || 'fitness_app',
   waitForConnections: true,
   connectionLimit: 10,
