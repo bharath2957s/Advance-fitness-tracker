@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Smart Diet Tracker - High Calorie Foods</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #9be2e8 0%, #3c91e6 100%);
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    max-width: 800px;
+    max-height: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  header {
+    background: #164f86;
+    color: #fff;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    background: #f3f9ff;
+  }
+  section {
+    margin-bottom: 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    padding: 12px 16px;
+  }
+  h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #164f86;
+    border-bottom: 2px solid #3c91e6;
+    padding-bottom: 6px;
+    font-weight: 600;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    color: #555;
+    font-weight: 500;
+  }
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1.8px solid #3c91e6;
+    font-size: 0.95rem;
+    font-weight: 600;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    border-color: #164f86;
+  }
+  .weight-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .weight-input-container input[type="number"] {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  .weight-input-container select {
+    flex: 0 0 90px;
+    margin-bottom: 0;
+  }
+  button {
+    background: #3c91e6;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 10px rgba(60,145,230,0.6);
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  button:hover {
+    background: #164f86;
+  }
+  .food-list {
+    max-height: 120px;
+    overflow-y: auto;
+    margin-top: 8px;
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+  }
+  .food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #222;
+    padding: 4px 6px;
+    border-radius: 5px;
+    background: #eaf4fc;
+  }
+  .food-item:last-child {
+    margin-bottom: 0;
+  }
+  .food-item span {
+    flex: 1;
+  }
+  .food-item button {
+    background: transparent;
+    border: none;
+    color: #d9534f;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+  }
+  .food-item button:hover {
+    color: #a93227;
+  }
+  .calorie-total {
+    margin-top: 8px;
+    font-weight: 700;
+    text-align: right;
+    font-size: 1rem;
+    color: #164f86;
+  }
+  .meal-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .meal-item {
+    flex: 1 1 49%;
+    border: 1.5px solid #a3cdfd;
+    border-radius: 8px;
+    background: #d3e5ff;
+    padding: 6px 12px;
+    color: #164f86;
+    font-weight: 700;
+    text-align: center;
+    font-size: 0.88rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .meal-item.selected {
+    background: #3c91e6;
+    color: white;
+    box-shadow: 0 6px 12px rgba(60,145,230,0.6);
+  }
+  .summary {
+    background: #dbeefd;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #164f86;
+    text-align: center;
+    box-shadow: inset 0 0 15px #9bb8e6;
+    margin-top: 4px;
+  }
+  .summary.over {
+    color: #d9534f;
+    background: #fcdcdc;
+    box-shadow: inset 0 0 15px #d87e7e;
+  }
+  .summary.under {
+    color: #3c763d;
+    background: #d9f0d9;
+    box-shadow: inset 0 0 15px #7bd17b;
+  }
+  .autocomplete-suggestions {
+    position: absolute;
+    background: white;
+    max-height: 160px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 1000;
+    width: calc(100% - 32px);
+  }
+  .autocomplete-suggestion {
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+  }
+  .autocomplete-suggestion:last-child {
+    border-bottom: none;
+  }
+  .autocomplete-suggestion:hover, .autocomplete-suggestion.active {
+    background: #3c91e6;
+    color: white;
+  }
+  @media (max-width: 360px) {
+    .meal-item {
+      flex-basis: 100%;
+    }
+    .weight-input-container {
+      flex-direction: column;
+    }
+    .weight-input-container select {
+      flex: 1;
+      margin-top: 6px;
+    }
+  }
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    border: 0 !important;
+  }
+</style>
+</head>
+<body>
+<header>🥗 Smart Diet Tracker - High Calorie Foods</header>
+<main>
+  <section aria-label="Meal selection">
+    <h2>Select Meal</h2>
+    <div class="meal-container" role="list" aria-live="polite">
+      <div tabindex="0" role="listitem" aria-pressed="true" class="meal-item selected" data-meal="breakfast">Breakfast</div>
+      <div tabindex="0" role="listitem" aria-pressed="false" class="meal-item" data-meal="lunch">Lunch</div>
+      <div tabindex="0" role="listitem" aria-pressed="false" class="meal-item" data-meal="dinner">Dinner</div>
+      <div tabindex="0" role="listitem" aria-pressed="false" class="meal-item" data-meal="snacks">Snacks</div>
+    </div>
+  </section>
+
+  <section aria-label="Add food manually">
+    <h2>Manual Food Input (High Calorie Suggestions)</h2>
+    <label for="food-name">Food name</label>
+    <input id="food-name" type="text" placeholder="Type food name..." autocomplete="off" aria-describedby="foodNameDesc" aria-autocomplete="list" aria-controls="autocomplete-list" aria-haspopup="listbox" />
+    <div id="foodNameDesc" class="sr-only">Start typing a food name to get high calorie suggestions</div>
+    <div id="autocomplete-list" class="autocomplete-suggestions" role="listbox" aria-label="Food suggestions" hidden></div>
+
+    <label for="calories-per-100g">Calories per 100g (kcal)</label>
+    <input id="calories-per-100g" type="number" min="0" placeholder="Auto-filled or enter manually" aria-describedby="caloriesPer100gDesc" />
+
+    <label for="weight-consumed">Weight consumed</label>
+    <div class="weight-input-container">
+      <input id="weight-consumed" type="number" min="0.01" step="0.01" placeholder="e.g. 1.5" aria-describedby="weightConsumedDesc" />
+      <select id="weight-unit" aria-label="Weight unit">
+        <option value="g">grams (g)</option>
+        <option value="kg" selected>kilograms (kg)</option>
+      </select>
+    </div>
+
+    <button id="add-food-btn">Add Food to Selected Meal</button>
+  </section>
+
+  <section aria-label="Current meal foods">
+    <h2>Meal Items</h2>
+    <div id="meal-food-lists" aria-live="polite">
+      <!-- Meal food lists inserted here -->
+    </div>
+  </section>
+
+  <section aria-label="Meal plan templates">
+    <h2>Meal Plan Templates</h2>
+    <label for="meal-plan-select">Choose a template</label>
+    <select id="meal-plan-select" aria-describedby="mealPlanDesc">
+      <option value="" disabled selected>Select a meal plan</option>
+      <option value="balanced">Balanced (2200 kcal)</option>
+      <option value="lowcal">Low Calorie (1500 kcal)</option>
+      <option value="highprotein">High Protein (2500 kcal)</option>
+    </select>
+    <div id="mealPlanDesc" class="sr-only">Select a meal plan template to apply calorie targets.</div>
+  </section>
+
+  <section aria-label="Calorie summary">
+    <h2>Summary & Analysis</h2>
+    <div id="calorie-summary" class="summary" aria-live="polite" aria-atomic="true">
+      Select a meal plan template to see calorie targets.
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  // Indian food base data
+  const baseFoods = [
+    {name:'Rice (cooked)', kcal:130}, {name:'Chapati (Wheat bread)', kcal:80}, {name:'Dal (Lentils)', kcal:116},
+    {name:'Chicken Curry', kcal:190}, {name:'Paneer (Cottage Cheese)', kcal:265}, {name:'Potato (boiled)', kcal:87},
+    {name:'Sabzi (Mixed Vegetables)', kcal:75}, {name:'Gulab Jamun', kcal:325}, {name:'Samosa', kcal:262},
+    {name:'Fish Curry', kcal:200}, {name:'Curd (Plain Yogurt)', kcal:61}, {name:'Idli', kcal:39},
+    {name:'Dosa', kcal:133}, {name:'Chole (Chickpeas)', kcal:164}, {name:'Biryani', kcal:290},
+    {name:'Pongal', kcal:180}, {name:'Poha', kcal:120}, {name:'Puri', kcal:150},
+    {name:'Rajma (Kidney Beans)', kcal:127}, {name:'Roti', kcal:85}, {name:'Lassi (Sweet)', kcal:250}
+  ];
+
+  const indianFoods = [];
+  baseFoods.forEach(f => indianFoods.push({...f}));
+  for(let i=1; i<=50; i++){
+    baseFoods.forEach(f=>{
+      indianFoods.push({
+        name: f.name + ' ' + i,
+        kcal: Math.round(f.kcal * (0.85 + Math.random()*0.3))
+      });
+    });
+  }
+  indianFoods.sort((a,b)=>b.kcal - a.kcal);
+
+  // State
+  let currentMeal = 'breakfast';
+  let meals = { breakfast:[], lunch:[], dinner:[], snacks:[] };
+  let currentMealPlan = null;
+
+  // Meal plans
+  const mealPlans = {
+    balanced: { targetCalories: 2200 },
+    lowcal: { targetCalories: 1500 },
+    highprotein: { targetCalories: 2500 }
+  };
+
+  // DOM refs
+  const mealItems = document.querySelectorAll('.meal-item');
+  const addFoodBtn = document.getElementById('add-food-btn');
+  const mealFoodListsContainer = document.getElementById('meal-food-lists');
+  const mealPlanSelect = document.getElementById('meal-plan-select');
+  const calorieSummary = document.getElementById('calorie-summary');
+
+  const foodNameInput = document.getElementById('food-name');
+  const caloriesInput = document.getElementById('calories-per-100g');
+  const weightInput = document.getElementById('weight-consumed');
+  const weightUnitSelect = document.getElementById('weight-unit');
+  const autocompleteList = document.getElementById('autocomplete-list');
+
+  function renderMealFoods(){
+    mealFoodListsContainer.innerHTML = '';
+    Object.keys(meals).forEach(mealName=>{
+      const mealFoods = meals[mealName];
+      const section = document.createElement('section');
+      section.classList.add('meal-food-section');
+      section.setAttribute('aria-label', `Foods for ${mealName}`);
+
+      const heading = document.createElement('h3');
+      heading.textContent = mealName.charAt(0).toUpperCase() + mealName.slice(1);
+      heading.style.color = mealName === currentMeal ? '#3c91e6' : '#555';
+      section.appendChild(heading);
+
+      const listDiv = document.createElement('div');
+      listDiv.classList.add('food-list');
+
+      if(mealFoods.length===0){
+        const emptyText = document.createElement('p');
+        emptyText.textContent = "No foods added.";
+        emptyText.style.fontStyle = 'italic';
+        emptyText.style.color = '#777';
+        listDiv.appendChild(emptyText);
+      } else {
+        mealFoods.forEach((item,i)=>{
+          const foodDiv = document.createElement('div');
+          foodDiv.className = 'food-item';
+          foodDiv.setAttribute('tabindex','0');
+          foodDiv.setAttribute('role','listitem');
+          const weightDisplay = item.weightUnit==='kg' 
+            ? item.weightConsumed.toFixed(2) + ' kg' 
+            : item.weightConsumed.toFixed(0) + ' g';
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = `${item.name} — ${weightDisplay}`;
+          foodDiv.appendChild(nameSpan);
+          const caloriesTotal = Math.round(item.caloriesPer100g * (item.weightConsumed * (item.weightUnit==='kg'?1000:1))/100);
+          const calSpan = document.createElement('span');
+          calSpan.textContent = `${caloriesTotal} kcal`;
+          calSpan.style.marginLeft = '8px';
+          calSpan.style.fontWeight = '600';
+          foodDiv.appendChild(calSpan);
+          const delBtn = document.createElement('button');
+          delBtn.setAttribute('aria-label', `Remove ${item.name} from ${mealName}`);
+          delBtn.textContent = '×';
+          delBtn.addEventListener('click', ()=>{
+            meals[mealName].splice(i,1);
+            renderMealFoods();
+            updateSummary();
+          });
+          foodDiv.appendChild(delBtn);
+          listDiv.appendChild(foodDiv);
+        });
+      }
+
+      section.appendChild(listDiv);
+
+      const totalCalories = mealFoods.reduce((sum,food)=>{
+        const grams = food.weightConsumed * (food.weightUnit==='kg'?1000:1);
+        return sum + (food.caloriesPer100g * grams / 100);
+      },0);
+      const calTotalDiv = document.createElement('div');
+      calTotalDiv.className = 'calorie-total';
+      calTotalDiv.textContent = `Total: ${Math.round(totalCalories)} kcal`;
+      section.appendChild(calTotalDiv);
+
+      mealFoodListsContainer.appendChild(section);
+    });
+  }
+
+  function updateSummary(){
+    let totalConsumed = 0;
+    Object.values(meals).forEach(mealFoods=>{
+      totalConsumed += mealFoods.reduce((sum,food)=>{
+        const grams = food.weightConsumed * (food.weightUnit==='kg'?1000:1);
+        return sum + (food.caloriesPer100g * grams / 100);
+      },0);
+    });
+    if(!currentMealPlan){
+      calorieSummary.textContent = 'Select a meal plan template to see calorie targets.';
+      calorieSummary.className = 'summary';
+      return;
+    }
+    const target = mealPlans[currentMealPlan].targetCalories;
+    calorieSummary.textContent = `Target Calories: ${target} kcal | Consumed: ${Math.round(totalConsumed)} kcal | ${
+      totalConsumed > target ? 'Above target! Consider eating less.' :
+      totalConsumed < target ? 'Below target! You can eat more.' :
+      'On target! Great job!'
+    }`;
+    calorieSummary.className = 'summary';
+    if(totalConsumed > target){
+      calorieSummary.classList.add('over');
+      calorieSummary.classList.remove('under');
+    } else if(totalConsumed < target){
+      calorieSummary.classList.add('under');
+      calorieSummary.classList.remove('over');
+    } else {
+      calorieSummary.classList.remove('under');
+      calorieSummary.classList.remove('over');
+    }
+  }
+
+  function addManualFood(){
+    let name = foodNameInput.value.trim();
+    let caloriesPer100g = Number(caloriesInput.value);
+    let weightConsumed = Number(weightInput.value);
+    let weightUnit = weightUnitSelect.value;
+
+    if(!name){
+      alert('Please enter the food name.');
+      return;
+    }
+    if(isNaN(caloriesPer100g) || caloriesPer100g < 0){
+      alert('Please enter a valid calories per 100g value.');
+      return;
+    }
+    if(isNaN(weightConsumed) || weightConsumed <= 0){
+      alert('Please enter a valid weight consumed greater than 0.');
+      return;
+    }
+    weightConsumed = Math.round(weightConsumed * 100) / 100;
+
+    const newFood = {name, caloriesPer100g, weightConsumed, weightUnit};
+    meals[currentMeal].push(newFood);
+
+    foodNameInput.value = '';
+    caloriesInput.value = '';
+    weightInput.value = '';
+    closeAutocomplete();
+    renderMealFoods();
+    updateSummary();
+  }
+
+  function selectMeal(meal){
+    currentMeal = meal;
+    mealItems.forEach(item=>{
+      item.classList.toggle('selected', item.dataset.meal===meal);
+      item.setAttribute('aria-pressed', item.dataset.meal===meal ? 'true' : 'false');
+    });
+    renderMealFoods();
+  }
+
+  function selectMealPlan(plan){
+    if(!plan){
+      currentMealPlan = null;
+    } else if(mealPlans[plan]){
+      currentMealPlan = plan;
+    }
+    updateSummary();
+  }
+
+  let activeSuggestionIndex = -1;
+  function closeAutocomplete(){
+    autocompleteList.innerHTML = '';
+    autocompleteList.hidden = true;
+    activeSuggestionIndex = -1;
+  }
+  function openAutocomplete(){
+    autocompleteList.hidden = false;
+  }
+  function updateAutocomplete(){
+    const val = foodNameInput.value.trim().toLowerCase();
+    autocompleteList.innerHTML = '';
+    if(!val){
+      closeAutocomplete();
+      caloriesInput.value = '';
+      return;
+    }
+    let filteredFoods = indianFoods.filter(f=>f.name.toLowerCase().includes(val));
+    if(filteredFoods.length===0){
+      closeAutocomplete();
+      caloriesInput.value = '';
+      return;
+    }
+    filteredFoods = filteredFoods.sort((a,b)=>b.kcal-b.kcal).slice(0,5);
+    filteredFoods.forEach((food,idx)=>{
+      const div = document.createElement('div');
+      div.className = 'autocomplete-suggestion';
+      div.setAttribute('role','option');
+      div.setAttribute('id','suggestion-'+idx);
+      div.textContent = `${food.name} - ${food.kcal} kcal / 100g`;
+      div.addEventListener('mousedown', e=>{
+        e.preventDefault();
+      });
+      div.addEventListener('click', ()=>{
+        foodNameInput.value = food.name;
+        caloriesInput.value = food.kcal;
+        closeAutocomplete();
+        weightInput.focus();
+      });
+      autocompleteList.appendChild(div);
+    });
+    openAutocomplete();
+    caloriesInput.value = filteredFoods[0].kcal;
+    activeSuggestionIndex = -1;
+  }
+  function autocompleteKeyDown(e){
+    const suggestions = autocompleteList.children;
+    let length = suggestions.length;
+    if(length===0) return;
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      if(activeSuggestionIndex<length-1){
+        activeSuggestionIndex++;
+      } else {
+        activeSuggestionIndex=0;
+      }
+      setActiveSuggestion(suggestions);
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      if(activeSuggestionIndex>0){
+        activeSuggestionIndex--;
+      } else {
+        activeSuggestionIndex=length-1;
+      }
+      setActiveSuggestion(suggestions);
+    } else if(e.key==='Enter'){
+      if(activeSuggestionIndex>-1){
+        e.preventDefault();
+        suggestions[activeSuggestionIndex].click();
+      }
+    } else if(e.key==='Escape'){
+      closeAutocomplete();
+    }
+  }
+  function setActiveSuggestion(suggestions){
+    for(let i=0;i<suggestions.length;i++){
+      if(i===activeSuggestionIndex){
+        suggestions[i].classList.add('active');
+        suggestions[i].setAttribute('aria-selected','true');
+        suggestions[i].scrollIntoView({block:"nearest"});
+      } else {
+        suggestions[i].classList.remove('active');
+        suggestions[i].removeAttribute('aria-selected');
+      }
+    }
+  }
+
+  addFoodBtn.addEventListener('click', addManualFood);
+  foodNameInput.addEventListener('input', updateAutocomplete);
+  foodNameInput.addEventListener('keydown', autocompleteKeyDown);
+  document.addEventListener('click', (event)=>{
+    if(event.target !== foodNameInput) closeAutocomplete();
+  });
+  mealItems.forEach(item=>{
+    item.addEventListener('click', ()=>selectMeal(item.dataset.meal));
+    item.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        selectMeal(e.target.dataset.meal);
+      }
+    });
+  });
+  mealPlanSelect.addEventListener('change', e=>{
+    selectMealPlan(e.target.value);
+  });
+
+  renderMealFoods();
+  updateSummary();
+})();
+</script>
+</body>
+</html>
+

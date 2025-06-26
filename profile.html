@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrack - Profile</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Framer Motion for animations -->
+  <script src="https://unpkg.com/framer-motion/dist/framer-motion.umd.js"></script>
+</head>
+<body class="bg-gradient-to-r from-green-200 via-blue-200 to-cyan-200 min-h-screen flex flex-col items-center py-8">
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-md bg-opacity-80">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Your Profile</h1>
+    <form id="profileForm" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Name</label>
+          <input type="text" id="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Your Name">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Gender</label>
+          <select id="gender" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Age</label>
+          <input type="number" id="age" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Years">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Weight (kg)</label>
+          <input type="number" id="weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g., 70">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Height (cm)</label>
+          <input type="number" id="height" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g., 175">
+        </div>
+      </div>
+      <div class="flex justify-center mt-6">
+        <button type="button" id="saveBtn" class="bg-green-600 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-green-700 transition transform hover:-translate-y-1">Save Profile</button>
+      </div>
+    </form>
+
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gradient-to-r from-teal-400 to-cyan-500 text-white rounded-2xl p-6 shadow-lg">
+        <h2 class="text-2xl font-bold mb-2">BMI</h2>
+        <p id="bmiValue" class="text-4xl font-extrabold">--</p>
+        <p id="bmiCategory" class="mt-1 text-lg">Enter your data above</p>
+      </div>
+      <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl p-6 shadow-lg">
+        <h2 class="text-2xl font-bold mb-2">BMR</h2>
+        <p id="bmrValue" class="text-4xl font-extrabold">--</p>
+        <p class="mt-1 text-lg">Calories/day</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateBMI(weight, heightCm) {
+      const heightM = heightCm / 100;
+      return (weight / (heightM * heightM)).toFixed(1);
+    }
+    function getBMICategory(bmi) {
+      if (bmi < 18.5) return 'Underweight';
+      if (bmi < 24.9) return 'Normal';
+      if (bmi < 29.9) return 'Overweight';
+      return 'Obese';
+    }
+    function calculateBMR(weight, heightCm, age, gender) {
+      // Mifflin-St Jeor formula
+      if (gender === 'male') {
+        return Math.round(10 * weight + 6.25 * heightCm - 5 * age + 5);
+      } else if (gender === 'female') {
+        return Math.round(10 * weight + 6.25 * heightCm - 5 * age - 161);
+      }
+      return 0;
+    }
+
+   document.getElementById('saveBtn').addEventListener('click', async () => {
+  const userId = localStorage.getItem("userId");
+      const gender = document.getElementById('gender').value;
+      const age = parseInt(document.getElementById('age').value, 10);
+      const weight = parseFloat(document.getElementById('weight').value);
+      const height = parseFloat(document.getElementById('height').value);
+
+      if (!gender || !age || !weight || !height) {
+        alert('Please fill in all fields');
+        return;
+      }
+      await fetch("http://localhost:3000/profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, gender, age, weight, height })
+  });
+      const bmi = calculateBMI(weight, height);
+      document.getElementById('bmiValue').innerText = bmi;
+      document.getElementById('bmiCategory').innerText = getBMICategory(bmi);
+
+      const bmr = calculateBMR(weight, height, age, gender);
+      document.getElementById('bmrValue').innerText = bmr;
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+  const userId = localStorage.getItem("userId");
+  if (!userId) return window.location = "login.html";
+
+  // Fetch saved profile
+  const res = await fetch(`http://localhost:3000/profile/${userId}`);
+  const profile = await res.json();
+  if (profile.gender) {
+    document.getElementById("gender").value = profile.gender;
+    document.getElementById("age").value    = profile.age;
+    document.getElementById("weight").value = profile.weight;
+    document.getElementById("height").value = profile.height;
+    // trigger one more calculate to show BMI/BMR
+    document.getElementById("saveBtn").click();
+  }
+});
+
+
+  </script>
+</body>
+</html>

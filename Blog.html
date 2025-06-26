@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8fit Clone - Workouts & Meal Plans</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #00e0d0;
+            --secondary: #6f5df7;
+            --dark-bg: #1f1e36;
+            --darker-bg: #17162a;
+            --text-light: #ffffff;
+            --text-dim: #b8b8d4;
+            --accent: #00e0d0;
+        }
+        
+        body {
+            color: var(--text-light);
+            line-height: 1.6;
+            background-color: var(--darker-bg);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header */
+        header {
+            background-color: rgba(23, 22, 42, 0.95);
+            box-shadow: 0 2px 20px rgba(0, 224, 208, 0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .logo:before {
+            content: "⦿";
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .logo:hover {
+            text-shadow: 0 0 15px var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--darker-bg);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .cta-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        .cta-button:hover:before {
+            left: 0;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 224, 208, 0.3);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding-top: 140px;
+            padding-bottom: 100px;
+            background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(rgba(111, 93, 247, 0.1), transparent 60%);
+            animation: rotate 30s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+            position: relative;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--text-dim);
+            position: relative;
+        }
+        
+        .hero-image {
+            max-width: 100%;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 224, 208, 0.2);
+            transition: all 0.5s ease;
+            position: relative;
+        }
+        
+        .hero-image:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 50px rgba(0, 224, 208, 0.3);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.5rem;
+            color: var(--text-light);
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 40px 30px;
+            border-radius: 15px;
+            background-color: var(--darker-bg);
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(111, 93, 247, 0.1);
+        }
+        
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 224, 208, 0.1), rgba(111, 93, 247, 0.1));
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        
+        .feature-card:hover:before {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 224, 208, 0.1);
+            border-color: rgba(111, 93, 247, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            transition: all 0.4s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2);
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+        
+        .feature-card p {
+            color: var(--text-dim);
+        }
+        
+        /* Workouts Section */
+        .workouts {
+            padding: 100px 0;
+            background-color: var(--darker-bg);
+        }
+        
+        .workouts-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            position: relative;
+        }
+        
+        .workouts-content {
+            flex: 1;
+        }
+        
+        .workouts-content h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+        
+        .workouts-content p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+        
+       /* .workouts-image {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }*/
+        
+        .workouts-image {
+            max-width: 25%;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 224, 208, 0.2);
+            transition: all 0.5s ease;
+            position:relative;
+        }
+        
+        .workouts-image:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+        
+        .workouts-image:hover:before {
+            opacity: 0.5;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+        }
+        
+        .workouts-image img {
+            width: 100%;
+            display: block;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .workouts-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Meal Plans Section */
+        .meal-plans {
+            padding: 100px 0;
+            background-color: var(--dark-bg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .meal-plans:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at right bottom, rgba(0, 224, 208, 0.07), transparent 70%);
+        }
+        
+        .meal-plans-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            flex-direction: row-reverse;
+            position: relative;
+        }
+        
+        .meal-plans-content {
+            flex: 1;
+        }
+        
+        .meal-plans-content h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+        
+        .meal-plans-content p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+        
+        .meal-plans-image {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .meal-plans-image:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+        
+        .meal-plans-image:hover:before {
+            opacity: 0.5;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+        }
+        
+        .meal-plans-image img {
+            width: 100%;
+            display: block;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .meal-plans-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Testimonials Section */
+        .testimonials {
+            padding: 100px 0;
+            background-color: var(--darker-bg);
+            text-align: center;
+            position: relative;
+        }
+        
+        .testimonials:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(111, 93, 247, 0.05), transparent 60%);
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .testimonial-card {
+            background-color: var(--dark-bg);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 1px solid rgba(111, 93, 247, 0.05);
+            overflow: hidden;
+        }
+        
+        .testimonial-card:before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 5rem;
+            font-family: Georgia, serif;
+            color: rgba(0, 224, 208, 0.1);
+            line-height: 1;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 224, 208, 0.1);
+            border-color: rgba(0, 224, 208, 0.2);
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--primary);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-card:hover .testimonial-author {
+            transform: scale(1.05);
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+            background-color: var(--dark-bg);
+            text-align: center;
+            position: relative;
+        }
+        
+        .pricing:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at left top, rgba(0, 224, 208, 0.07), transparent 70%);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .pricing-card {
+            background-color: var(--darker-bg);
+            padding: 50px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(111, 93, 247, 0.1);
+            z-index: 1;
+        }
+        
+        .pricing-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+        
+        .pricing-card:hover:before {
+            transform: scaleX(1);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 224, 208, 0.1);
+            border-color: rgba(111, 93, 247, 0.3);
+        }
+        
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(0, 224, 208, 0.1), rgba(111, 93, 247, 0.2));
+            border: 1px solid rgba(0, 224, 208, 0.3);
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        
+        .pricing-card.featured:hover {
+            transform: translateY(-15px) scale(1.08);
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+        
+        .pricing-card .price {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .pricing-card .price span {
+            font-size: 1rem;
+            color: var(--text-dim);
+            -webkit-text-fill-color: var(--text-dim);
+        }
+        
+        .pricing-card ul {
+            list-style: none;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .pricing-card ul li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+            color: var(--text-dim);
+        }
+        
+        .pricing-card ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+        
+        .pricing-card .cta-button {
+            width: 100%;
+        }
+        
+        /* CTA Section 
+        .cta-section {
+            padding: 120px 0;
+            background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 224, 208, 0.15), transparent 70%);
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+            position: relative;
+        }
+        
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--text-dim);
+            position: relative;
+        }
+        
+        .cta-section .cta-button {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--darker-bg);
+            font-size: 1.1rem;
+            padding: 15px 40px;
+            position: relative;
+        }
+        
+        .cta-section .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 224, 208, 0.4);
+        }*/
+        /* === Replace your current .cta-button rules with this === */
+
+.cta-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
+  color: var(--darker-bg);
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--secondary), var(--primary));
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.cta-button:hover::before {
+  transform: translateX(0);
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 15px rgba(0, 224, 208, 0.3);
+}
+
+.cta-button:active {
+  transform: translateY(0);
+}
+
+
+        /* Footer */
+        footer {
+            background-color: var(--darker-bg);
+            color: var(--text-dim);
+            padding: 80px 0 30px;
+            position: relative;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 1.5px;
+        }
+        
+        .footer-column p {
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .footer-links a:before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--primary);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 20px;
+        }
+        
+        .footer-links a:hover:before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(111, 93, 247, 0.1);
+            color: var(--text-dim);
+        }
+        
+        /* Animated Effects */
+        .glow {
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 10px rgba(0, 224, 208, 0.1);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(0, 224, 208, 0.4);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            .features-grid, .testimonials-grid, .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-links li {
+                margin: 5px 15px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .workouts-container, .meal-plans-container {
+                flex-direction: column;
+            }
+            
+            .features-grid, .testimonials-grid, .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            height: 5px;
+            width: 100%;
+            background-color: var(--darker-bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <header>
+        <div class="container header-container">
+            <div class="logo">fit tracker</div>
+            <ul class="nav-links">
+                <li><a href="#workouts">Workouts</a></li>
+                <li><a href="#meal-plans">Meal Plans</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="login.html" class="cta-button pulse">Start New Journey</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1 data-aos="fade-up">Get fit and healthy with personalized plans</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Workouts and meal plans tailored to your goals. Build healthy habits for life with 8fit.</p>
+           <!-- <button class="cta-button glow" data-aos="fade-up" data-aos-delay="200">Start Your Journey Today</button>-->
+            <img src="a.jpg" alt="8fit App Showcase" class="hero-image floating" data-aos="zoom-in" data-aos-delay="300">
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Why Choose fit tracker?</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">🏋️</div>
+                    <h3>Personalized Workouts</h3>
+                    <p>Customized workout plans based on your fitness level, goals, and available equipment.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">🥗</div>
+                    <h3>Custom Meal Plans</h3>
+                    <p>Delicious and nutritious recipes tailored to your dietary preferences and nutritional needs.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">📱</div>
+                    <h3>Guided Programs</h3>
+                    <p>Step-by-step guidance with video tutorials and progress tracking to keep you motivated.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+  <!--  <section class="workouts" id="workouts">
+        <div class="container workouts-container">
+            <div class="workouts-content" data-aos="fade-right">
+                <h2>Effective Workouts for Every Level</h2>
+                <p>From beginner to advanced, our workouts are designed by fitness experts to help you reach your goals. Whether you want to lose weight, build muscle, or improve flexibility, we have the perfect workout for you.</p>
+                <p>No gym? No problem. Most of our workouts require minimal or no equipment, so you can exercise anywhere, anytime.</p>
+                <button class="cta-button">Explore Workouts</button>
+                <div class="workouts-image" data-aos="fade-left">
+                <img src="b.jpg" alt="Workout Routine Showcase">
+                </div>
+            </div>  .workouts-container -->
+        </div> <!-- .container
+    </section> -->
+    <section class="workouts" id="workouts">
+  <div class="container workouts-container">
+    <!-- Workouts text content -->
+    <div class="workouts-content" data-aos="fade-right">
+      <h2>Effective Workouts for Every Level</h2>
+      <p>From beginner to advanced, our workouts are designed by fitness experts to help you reach your goals. Whether you want to lose weight, build muscle, or improve flexibility, we have the perfect workout for you.</p>
+      <p>No gym? No problem. Most of our workouts require minimal or no equipment, so you can exercise anywhere, anytime.</p>
+      <button class="cta-button">Explore Workouts</button>
+    </div>
+
+    <!-- Moved image outside of .workouts-content to the right -->
+    <div class="workouts-image" data-aos="fade-left">
+      <img src="b.jpg" alt="Workout Routine Showcase">
+    </div>
+  </div>
+</section>
+    <!-- Meal Plans Section -->
+    <section class="meal-plans" id="meal-plans">
+        <div class="container meal-plans-container">
+            <div class="meal-plans-content" data-aos="fade-left">
+                <h2>Delicious Meal Plans</h2>
+                <p>Choose from a variety of balanced recipes designed to fuel your body and satisfy your taste buds.</p>
+                <button class="cta-button" data-aos="fade-up" data-aos-delay="100" onclick="window.location.href='df.html'">Explore Plans</button>
+            </div>
+            <div class="meal-plans-image" data-aos="fade-right">
+                <img src="c.jpg" alt="Healthy Meal Showcase">
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">What Our Users Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <p class="testimonial-text">"fit transformed my fitness journey. The personalized workouts are amazing!"</p>
+                    <p class="testimonial-author">— Alex R.</p>
+                </div>
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <p class="testimonial-text">"The meal plans are delicious and easy to follow. I've never felt healthier."</p>
+                    <p class="testimonial-author">— Sam K.</p>
+                </div>
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+                    <p class="testimonial-text">"I love tracking my progress. 8fit keeps me motivated every day!"</p>
+                    <p class="testimonial-author">— Jamie L.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section 
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Choose Your Plan</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3>Basic</h3>
+                    <p class="price">$0 <span>/ month</span></p>
+                    <ul>
+                        <li>Limited Workouts</li>
+                        <li>Basic Meal Plans</li>
+                        <li>Community Access</li>
+                    </ul>
+                    <button class="cta-button">Get Started</button>
+                </div>
+                <div class="pricing-card featured" data-aos="fade-up" data-aos-delay="200">
+                    <h3>Pro</h3>
+                    <p class="price">$9.99 <span>/ month</span></p>
+                    <ul>
+                        <li>All Workouts</li>
+                        <li>Custom Meal Plans</li>
+                        <li>1-on-1 Coaching</li>
+                    </ul>
+                    <button class="cta-button">Go Pro</button>
+                </div>
+                <div class="pricing-card" data-aos="fade-up" data-aos-delay="300">
+                    <h3>Premium</h3>
+                    <p class="price">$19.99 <span>/ month</span></p>
+                    <ul>
+                        <li>Pro Features</li>
+                        <li>Nutritionist Support</li>
+                        <li>Exclusive Content</li>
+                    </ul>
+                    <button class="cta-button">Join Premium</button>
+                </div>
+            </div>
+        </div>
+    </section>-->
+
+    <!-- Blog Section -->
+    <section class="blog" id="blog">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">From Our Blog</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3>5 Tips for Better Workouts</h3>
+                    <p>Learn how to maximize your workout efficiency with these expert tips.</p>
+                    <a href="tips.html" class="cta-button">Read More</a>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3>Healthy Recipes to Try</h3>
+                    <p>Delicious and nutritious meals you can make at home.</p>
+                    <a href="tips.html" class="cta-button">Read More</a>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <h3>Staying Motivated</h3>
+                    <p>Strategies to keep you on track towards your fitness goals.</p>
+                    <a href="tips.html" class="cta-button">Read More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-column">
+                <h3>About fit tracker</h3>
+                <p>fit tracker is your ultimate fitness companion, offering tailored workouts and meal plans to help you achieve your goals.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#workouts">Workouts</a></li>
+                    <li><a href="#meal-plans">Meal Plans</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Follow Us</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 fit (Mazino). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 800 });
+
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const progressBar = document.getElementById('progressBar');
+            const scrollTotal = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTotal / height) * 100;
+            progressBar.style.width = progress + '%';
+        });
+    </script>
+</body>
+</html>

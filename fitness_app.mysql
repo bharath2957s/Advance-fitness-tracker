@@ -1,0 +1,53 @@
+
+//users table
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50),
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20) UNIQUE,
+    password VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+//diet_entries Table
+CREATE TABLE diet_entries (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    meal ENUM('breakfast', 'lunch', 'dinner', 'snacks'),
+    name VARCHAR(100),
+    calories_per_100g INT,
+    weight_consumed FLOAT,
+    weight_unit ENUM('g', 'kg'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+// profiles Table
+CREATE TABLE profiles (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE,
+    gender ENUM('male', 'female'),
+    age INT,
+    weight FLOAT,
+    height FLOAT
+);
+
+//workouts Table
+CREATE TABLE workouts (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    reps INT,
+    calories INT NOT NULL,
+    avg_rep_time FLOAT NOT NULL,
+    session_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+//metrics Table
+CREATE TABLE metrics (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    activity VARCHAR(50),
+    meter INT,
+    calories INT,
+    duration INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

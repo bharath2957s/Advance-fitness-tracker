@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitaTrack - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>:root {
+    --primary: #6c5ce7;
+    --primary-light: #a29bfe;
+    --secondary: #00b894;
+    --secondary-light: #55efc4;
+    --accent: #fd79a8;
+    --accent-light: #ffb8c6;
+    --dark: #2d3436;
+    --dark-light: #636e72;
+    --light: #dfe6e9;
+    --lighter: #f5f6fa;
+    --white: #ffffff;
+    --danger: #d63031;
+    --warning: #fdcb6e;
+    --success: #00b894;
+    --info: #0984e3;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+    
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--lighter);
+    color: var(--dark);
+    line-height: 1.6;
+  }
+  
+  .app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    background: linear-gradient(135deg, var(--primary), var(--dark));
+    color: var(--white);
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .logo i {
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: var(--accent-light);
+  }
+  
+  .logo h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  
+  .logo h1 span {
+    font-weight: 300;
+  }
+  
+  .nav-menu {
+    margin-top: 1rem;
+    flex-grow: 1;
+  }
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--white);
+    opacity: 0.8;
+  }
+  
+  .nav-item:hover {
+    background-color: rgba(255,255,255,0.1);
+    opacity: 1;
+    transform: translateX(5px);
+  }
+  
+  .nav-item.active {
+    background-color: rgba(255,255,255,0.2);
+    opacity: 1;
+    font-weight: 600;
+  }
+  
+  .nav-item i {
+    margin-right: 1rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .user-widget {
+    margin-top: auto;
+    padding: 1rem;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+  }
+  
+  .user-widget:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    object-fit: cover;
+    border: 2px solid var(--accent-light);
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .user-level {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+  
+  /* Main Content */
+  .main-content {
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--lighter);
+  }
+  
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .main-header h2 {
+    font-size: 1.8rem;
+    color: var(--dark);
+    font-weight: 700;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .notification-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--dark-light);
+    transition: var(--transition);
+  }
+  
+  .notification-bell:hover {
+    color: var(--primary);
+  }
+  
+  .notification-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+  
+  .date-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dark-light);
+    font-size: 0.95rem;
+  }
+  
+  .date-display i {
+    font-size: 1.1rem;
+  }
+  
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+  
+  .stat-card.steps::after { background-color: var(--info); }
+  .stat-card.calories::after { background-color: var(--danger); }
+  .stat-card.water::after { background-color: var(--info); }
+  .stat-card.sleep::after { background-color: var(--secondary); }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.2rem;
+    font-size: 1.3rem;
+    color: var(--white);
+  }
+  
+  .stat-card.steps .stat-icon { background-color: var(--info); }
+  .stat-card.calories .stat-icon { background-color: var(--danger); }
+  .stat-card.water .stat-icon { background-color: var(--info); }
+  .stat-card.sleep .stat-icon { background-color: var(--secondary); }
+  
+  .stat-content h3 {
+    font-size: 0.95rem;
+    color: var(--dark-light);
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+  
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-container {
+    width: 100%;
+  }
+  
+  .progress-bar {
+    height: 6px;
+    background-color: var(--light);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.3rem;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  
+  .stat-card.steps .progress-fill { background-color: var(--info); }
+  .stat-card.calories .progress-fill { background-color: var(--danger); }
+  .stat-card.water .progress-fill { background-color: var(--info); }
+  .stat-card.sleep .progress-fill { background-color: var(--secondary); }
+  
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--dark-light);
+  }
+  
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .content-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+  
+  .content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--dark-light);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  
+  .btn-icon:hover {
+    color: var(--primary);
+  }
+  
+  /* Workout Plan */
+  .workout-list {
+    margin-bottom: 1.5rem;
+  }
+  
+  .workout-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--light);
+  }
+  
+  .workout-item:last-child {
+    border-bottom: none;
+  }
+  
+  .workout-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(108, 92, 231, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+  
+  .workout-details {
+    flex-grow: 1;
+  }
+  
+  .workout-details h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.2rem;
+  }
+  
+  .workout-details p {
+    font-size: 0.85rem;
+    color: var(--dark-light);
+  }
+  
+  .workout-status {
+    margin-left: 1rem;
+  }
+  
+  .tag {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .tag.upcoming {
+    background-color: rgba(253, 203, 110, 0.2);
+    color: #d68910;
+  }
+  
+  .tag.completed {
+    background-color: rgba(0, 184, 148, 0.2);
+    color: var(--secondary);
+  }
+  
+  /* Meal Plan */
+  .meal-list {
+    margin-bottom: 1.5rem;
+  }
+  
+  .meal-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--light);
+  }
+  
+  .meal-item:last-child {
+    border-bottom: none;
+  }
+  
+  .meal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+    color: white;
+  }
+  
+  .meal-icon.breakfast {
+    background-color: #f39c12;
+  }
+  
+  .meal-icon.lunch {
+    background-color: #e74c3c;
+  }
+  
+  .meal-icon.dinner {
+    background-color: #3498db;
+  }
+  
+  .meal-icon.snack {
+    background-color: #9b59b6;
+  }
+  
+  .meal-details {
+    flex-grow: 1;
+  }
+  
+  .meal-details h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.2rem;
+  }
+  
+  .meal-details p {
+    font-size: 0.85rem;
+    color: var(--dark-light);
+  }
+  
+  .meal-check {
+    margin-left: 1rem;
+  }
+  
+  .checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--light);
+    border-radius: 4px;
+    transition: var(--transition);
+  }
+  
+  .checkbox-container:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: var(--success);
+  }
+  
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  .checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Water Tracker */
+  .water-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .water-bottle {
+    position: relative;
+    width: 120px;
+    height: 200px;
+    margin: 1rem 0;
+  }
+  
+  .bottle-outline {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 4px solid var(--info);
+    border-radius: 0 0 40px 40px;
+    overflow: hidden;
+  }
+  
+  .water-fill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--info-light);
+    transition: height 0.5s ease;
+  }
+  
+  .water-stats {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1;
+  }
+  
+  .water-amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  
+  .water-goal {
+    font-size: 0.9rem;
+    color: var(--dark-light);
+  }
+  
+  .water-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+    width: 100%;
+  }
+  
+  .water-btn {
+    background-color: var(--light);
+    border: none;
+    border-radius: 100px;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--dark);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+  
+  .water-btn:hover {
+    background-color: var(--info);
+    color: white;
+  }
+  
+  /* Quote Card */
+  .quote-card {
+    background: linear-gradient(135deg, var(--primary), var(--dark));
+    color: white;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .quote-icon {
+    font-size: 3rem;
+    opacity: 0.1;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+  }
+  
+  .quote-text {
+    font-size: 1.1rem;
+    font-style: italic;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+  }
+  
+  .quote-author {
+    text-align: right;
+    font-weight: 600;
+    opacity: 0.8;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Activity Chart */
+  .chart-container {
+    height: 250px;
+    margin-top: 1rem;
+    position: relative;
+  }
+  
+  .time-filter {
+    width: 120px;
+  }
+
+ .input{
+    background-color: var(--light);
+    border: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0px;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--dark);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+  
+  /* Quick Log */
+  .log-form {
+    margin-top: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--light);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    transition: var(--transition);
+    background-color: var(--lighter);
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+  }
+  
+  .btn:hover {
+    background-color: var(--dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-block {
+    display: flex;
+    width: 100%;
+  }
+  
+  .btn-secondary {
+    background-color: var(--light);
+    color: var(--dark);
+  }
+  
+  .btn-secondary:hover {
+    background-color: #d1d8e0;
+  }
+  
+  /* Animations */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .app-container {
+      grid-template-columns: 240px 1fr;
+    }
+    
+    .sidebar {
+      padding: 1.5rem 0.5rem;
+    }
+    
+    .logo {
+      padding: 0 0.5rem;
+    }
+    
+    .logo h1 {
+      font-size: 1.5rem;
+    }
+    
+    .nav-item {
+      padding: 0.8rem 0.5rem;
+    }
+    
+    .nav-item span {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .app-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .main-content {
+      padding: 1.5rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .main-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+.water-tracker {
+  margin: 20px 0;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+.water-content {
+  padding: 15px;
+}
+
+.water-bottle {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.bottle-outline {
+  width: 100px;
+  height: 160px;
+  border: 3px solid #000000;
+  border-radius: 5px 5px 30px 30px;
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.water-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #3498db;
+  transition: height 0.3s ease;
+}
+
+.water-stats {
+  flex: 1;
+}
+
+.water-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.water-goal {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.water-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.water-btn {
+  flex: 1;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.2s;
+}
+
+.water-btn:hover {
+  background: #2980b9;
+}
+
+  </style>
+
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fas fa-heartbeat pulse"></i>
+        <h1>Fitness<span>Tracker</span></h1>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="dash.html" class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="log.html" class="nav-item">
+          <i class="fas fa-clipboard-list"></i>
+          <span>Daily Log</span>
+        </a>
+        <a href="BICEP CURL TRAINER.html" class="nav-item">
+          <i class="fas fa-dumbbell"></i>
+          <span>Workout Planner</span>
+        </a>
+        <a href="Smart diet tracke.html" class="nav-item">
+          <i class="fas fa-utensils"></i>
+          <span>Nutrition</span>
+        </a>
+        <a href="tips.html" class="nav-item">
+          <i class="fas fa-lightbulb"></i>
+          <span>Fitness Tips</span>
+        </a>
+        <a href="YOGA Pose Correctness Detector.html" class="nav-item">
+          <i class="fas fa-bullseye"></i>
+          <span>AR Yoga</span>
+        </a>
+        <!-- <a href="progress.html" class="nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Progress</span>
+        </a>
+        <a href="goals.html" class="nav-item">
+          <i class="fas fa-bullseye"></i>
+          <span>Goals</span>
+        </a>
+        <a href="exercise-library.html" class="nav-item">
+          <i class="fas fa-book"></i>
+          <span>Exercise Library</span>
+        </a>
+        <a href="diet.html" class="nav-item">
+          <i class="fas fa-utensils"></i>
+          <span>Nutrition</span>
+        </a>
+        <a href="#water.html" class="nav-item">
+          <i class="fas fa-tint"></i>
+          <span>Water Tracker</span>
+        </a>
+        <a href="sleep.html" class="nav-item">
+          <i class="fas fa-bed"></i>
+          <span>Sleep Tracker</span>
+        </a>
+        <a href="achievements.html" class="nav-item">
+          <i class="fas fa-medal"></i>
+          <span>Achievements</span>
+        </a>
+        <a href="meditation.html" class="nav-item">
+          <i class="fas fa-spa"></i>
+          <span>Meditation</span>
+        </a>
+        
+      </nav> -->
+      
+      <!-- <div class="user-widget">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar">
+        <div class="user-info">
+          <span class="user-name">Sarah Johnson</span>
+          <span class="user-level">Fitness Level: Advanced</span>
+        </div>
+      </div> -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="main-header">
+        <h2>Dashboard</h2>
+        <div class="header-actions">
+          <div class="notification-bell">
+            <i class="fas fa-bell"></i>
+            <span class="notification-count"></span>
+          </div> 
+          <div class="date-display">
+            <i class="fas fa-calendar-day"></i>
+            <span id="current-date">May 10, 2025</span>
+          </div>
+        </div>
+      </header>
+
+      
+
+      <!-- Main Content Grid -->
+      <div class="content-grid">
+        <!-- Workout Plan -->
+        <div class="content-card workout-plan">
+          <div class="card-header">
+            <h3><i class="fas fa-dumbbell"></i> Today's Workout</h3>
+            <button class="btn-icon">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+          <div class="workout-list">
+            <div class="workout-item">
+              <div class="workout-icon">
+                <i class="fas fa-spa"></i>
+              </div>
+              <div class="workout-details">
+                <h4>Morning Yoga</h4>
+                <p>30 min • 8:00 AM</p>
+              </div>
+              <div class="workout-status">
+                <span class="tag upcoming">Upcoming</span>
+              </div>
+            </div>
+            <div class="workout-item">
+              <div class="workout-icon">
+                <i class="fas fa-running"></i>
+              </div>
+              <div class="workout-details">
+                <h4>Evening Run</h4>
+                <p>45 min • 6:30 PM</p>
+              </div>
+              <div class="workout-status">
+                <span class="tag upcoming">Upcoming</span>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+
+        <!-- Meal Plan -->
+        <div class="content-card meal-plan">
+          <div class="card-header">
+            <h3><i  class="fas fa-utensils"></i> Today's Meals</h3>
+            <button class="btn-icon">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+          <div class="meal-list">
+            <div class="meal-item">
+              <div class="meal-icon breakfast">
+                <i class="fas fa-sun"></i>
+              </div>
+              <div class="meal-details">
+                <h4>Breakfast</h4>
+                <p>Oatmeal with berries • 320 cal</p>
+              </div>
+              <div class="meal-check">
+                <label class="checkbox-container">
+                  <input type="checkbox" checked>
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+            <div class="meal-item">
+              <div class="meal-icon lunch">
+                <i class="fas fa-sun"></i>
+              </div>
+              <div class="meal-details">
+                <h4>Lunch</h4>
+                <p>Grilled chicken salad • 450 cal</p>
+              </div>
+              <div class="meal-check">
+                <label class="checkbox-container">
+                  <input type="checkbox">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+            <div class="meal-item">
+              <div class="meal-icon dinner">
+                <i class="fas fa-moon"></i>
+              </div>
+              <div class="meal-details">
+                <h4>Dinner</h4>
+                <p>Salmon with quinoa • 520 cal</p>
+              </div>
+              <div class="meal-check">
+                <label class="checkbox-container">
+                  <input type="checkbox">
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="content-card water-tracker">
+            <div class="card-header">
+              <h3><i class="fas fa-tint"></i> Water Intake</h3>
+              <button class="btn-icon" id="resetWater"> 
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+            <div class="water-content">
+              <div class="water-bottle">
+                <div class="bottle-outline">
+                  <div class="water-fill" id="waterFill"></div>
+                </div>
+                <div class="water-stats">
+                  <div class="water-amount" id="waterAmount">0.0L</div>
+                  <div class="water-goal">of 3.0L</div>
+                </div>
+              </div>
+              <div class="water-buttons">
+                <button class="water-btn" data-amount="250">
+                  <i class="fas fa-plus"></i> 250ml
+                </button>
+                <button class="water-btn" data-amount="500">
+                  <i class="fas fa-plus"></i> 500ml
+                </button>
+                <button class="water-btn" data-amount="750">
+                  <i class="fas fa-plus"></i> 750ml
+                </button>
+              </div>
+            </div>
+          </div>
+
+        <!-- Motivational Quote -->
+        <div class="content-card quote-card">
+          <div class="quote-icon">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <p class="quote-text">The only bad workout is the one that didn't happen. Keep pushing, stay consistent, and the results will come.</p>
+          <p class="quote-author">- Your Future Self</p>
+        </div>
+
+        <!-- Activity Chart -->
+        <!-- Activity Chart -->
+<div class="content-card activity-chart">
+    <div class="card-header">
+      <h3><i class="fas fa-chart-bar"></i> Note: </h3>
+    </div>
+    
+    <!-- Moved input field below the heading -->
+    <div class="time-filter">
+      <input class="input" type="text" placeholder="">
+    </div>
+  
+    <div class="chart-container">
+      <canvas id="activityChart"></canvas>
+    </div>
+  </div>
+  
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  // === Dynamic Stat Progress (Example) ===
+  const updateStat = (selector, value, max) => {
+    const statValue = document.querySelector(`${selector} .stat-value`);
+    const progressFill = document.querySelector(`${selector} .progress-fill`);
+    const progressText = document.querySelector(`${selector} .progress-text .percent`);
+    
+    statValue.textContent = value;
+    const percent = Math.min((value / max) * 100, 100);
+    progressFill.style.width = `${percent}%`;
+    if (progressText) progressText.textContent = `${Math.round(percent)}%`;
+  };
+
+  // Example values (you can replace these with real data from your backend)
+  updateStat('.stat-card.steps', 7200, 10000);
+  updateStat('.stat-card.calories', 1800, 2500);
+  updateStat('.stat-card.water', 1500, 3000);
+  updateStat('.stat-card.sleep', 6, 8);
+
+//   // === Water Tracker Fill ===
+//   const waterAmount = 1500; // in ml (example)
+//   const waterTarget = 3000;
+//   const waterFill = document.querySelector('.water-fill');
+
+//   if (waterFill) {
+//     const waterHeight = Math.min((waterAmount / waterTarget) * 100, 100);
+//     waterFill.style.height = `${waterHeight}%`;
+//   }
+
+  // === Meal Checkboxes ===
+  const checkboxes = document.querySelectorAll('.checkbox-container input');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const meal = checkbox.closest('.meal-item');
+      if (checkbox.checked) {
+        meal.style.opacity = '0.6';
+      } else {
+        meal.style.opacity = '1';
+      }
+    });
+  });
+
+  // === Workout Status Tag Toggle (Optional) ===
+  const workoutItems = document.querySelectorAll('.workout-item');
+  workoutItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const tag = item.querySelector('.tag');
+      if (tag.classList.contains('upcoming')) {
+        tag.classList.remove('upcoming');
+        tag.classList.add('completed');
+        tag.textContent = 'Completed';
+      } else {
+        tag.classList.remove('completed');
+        tag.classList.add('upcoming');
+        tag.textContent = 'Upcoming';
+      }
+    });
+  });
+
+  // === Notification Example ===
+  const bell = document.querySelector('.notification-bell');
+  if (bell) {
+    bell.addEventListener('click', () => {
+      alert('You have 3 new reminders!');
+    });
+  }
+
+  let currentIntake = 1.8; // Initial water intake in Liters
+    const goalIntake = 3.0; // Goal in Liters
+    const waterFill = document.getElementById("waterFill");
+    const waterAmount = document.getElementById("waterAmount");
+
+    function updateWater(amount) {
+      currentIntake += amount / 1000; // Convert ml to L
+      if (currentIntake > goalIntake) currentIntake = goalIntake; // Prevent overflow
+
+      let percentage = (currentIntake / goalIntake) * 100;
+      waterFill.style.height = percentage + "%"; // Adjust water level
+      waterAmount.textContent = `${currentIntake.toFixed(1)}L`; // Update text
+    }
+
+  // === Display current date ===
+  const dateDisplay = document.querySelector('.date-display span');
+  if (dateDisplay) {
+    const today = new Date();
+    dateDisplay.textContent = today.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const waterFill = document.getElementById('waterFill');
+  const waterAmount = document.getElementById('waterAmount');
+  const waterButtons = document.querySelectorAll('.water-btn');
+  const resetButton = document.getElementById('resetWater');
+  
+  const GOAL = 3000; // 3 liters in ml
+  let consumed = 0;
+
+  // Load saved data
+  if (localStorage.getItem('waterConsumed')) {
+    consumed = parseInt(localStorage.getItem('waterConsumed'));
+    updateDisplay();
+  }
+
+  // Add button functionality
+  waterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const amount = parseInt(this.getAttribute('data-amount'));
+      addWater(amount);
+    });
+  });
+
+  // Reset button
+  resetButton.addEventListener('click', function() {
+    consumed = 0;
+    localStorage.setItem('waterConsumed', '0');
+    updateDisplay();
+  });
+
+  function addWater(ml) {
+    consumed += ml;
+    if (consumed > GOAL) consumed = GOAL;
+    localStorage.setItem('waterConsumed', consumed.toString());
+    updateDisplay();
+    
+    if (consumed >= GOAL) {
+      setTimeout(() => {
+        alert('🎉 Congratulations! You reached your water goal!');
+      }, 300);
+    }
+  }
+
+  function updateDisplay() {
+    const percentage = (consumed / GOAL) * 100;
+    waterFill.style.height = `${percentage}%`;
+    waterAmount.textContent = `${(consumed / 1000).toFixed(1)}L`;
+    
+    // Change color based on percentage
+    if (percentage < 30) {
+      waterFill.style.background = '#3498db';
+    } else if (percentage < 70) {
+      waterFill.style.background = '#3498db';
+    } else {
+      waterFill.style.background = '#3498db';
+    }
+  }
+
+  // Auto-reset at midnight
+  function checkReset() {
+    const now = new Date();
+    const lastReset = localStorage.getItem('lastReset');
+    const today = now.toDateString();
+    
+    if (!lastReset || lastReset !== today) {
+      consumed = 0;
+      localStorage.setItem('waterConsumed', '0');
+      localStorage.setItem('lastReset', today);
+      updateDisplay();
+    }
+  }
+  
+  checkReset();
+  setInterval(checkReset, 3600000); // Check every hour
+});
+  </script>
+</body>
+</html>

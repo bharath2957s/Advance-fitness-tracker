@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrack - Your Fitness Journey</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --dark: #343a40;
+      --light: #f8f9fa;
+      --gray: #e9ecef;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .app-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    @media (min-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .app-header {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding-bottom: 1rem;
+    }
+    
+    .app-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .app-title h1 {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .app-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+    }
+    
+    .form-card h2, .metrics-card h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 2px solid #e1e5eb;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+      outline: none;
+    }
+    
+    .btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      user-select: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    
+    .btn-primary {
+      color: #fff;
+      background-color: var(--primary);
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-danger {
+      color: #fff;
+      background-color: var(--danger);
+      border: none;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+    
+    .btn-danger:hover {
+      background-color: #e5195f;
+    }
+    
+    .form-group.meter-field {
+      display: none;
+    }
+    
+    .metrics-list {
+      margin-top: 1.5rem;
+      max-height: 350px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    
+    .metrics-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .metrics-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .metrics-list::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: 10px;
+    }
+    
+    .metric-item {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .metric-item:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      transform: translateX(2px);
+    }
+    
+    .metric-info {
+      flex: 1;
+    }
+    
+    .metric-date {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: 0.25rem;
+    }
+    
+    .metric-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    
+    .metric-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.95rem;
+    }
+    
+    .metric-detail i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+    
+    .chart-container {
+      grid-column: 1 / -1;
+      position: relative;
+      padding: 1rem;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      margin-bottom: 1rem;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .tab-btn {
+      background: white;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .chart-tabs {
+      position: relative;
+      height: 350px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      color: #dee2e6;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .activity-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      margin-right: 0.75rem;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .metric-item.new {
+      animation: slideIn 0.5s ease forwards;
+    }
+    
+    .form-success {
+      padding: 1rem;
+      background-color: rgba(76, 201, 240, 0.1);
+      border-radius: 8px;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+    }
+    
+    .form-success i {
+      color: var(--success);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+    
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.75rem;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="app-title">
+        <i class="fas fa-heartbeat" style="color: white; font-size: 2rem;"></i>
+        <h1>FitTrack</h1>
+      </div>
+      <p class="app-subtitle">Track your fitness journey, celebrate your progress</p>
+    </header>
+    
+    <div class="card form-card">
+      <h2><i class="fas fa-plus-circle"></i> Log Activity</h2>
+      <form id="metricsForm">
+        <input type="hidden" id="userId" value="1">
+        
+        <div class="form-group">
+          <label class="form-label" for="activity">Activity / Sport:</label>
+          <select class="form-control" id="activity" required>
+            <option value="">Choose your activity</option>
+            <option value="Running">🏃 Running</option>
+            <option value="Walking">🚶 Walking</option>
+            <option value="Hiking">🥾 Hiking</option>
+            <option value="Cycling">🚴 Cycling</option>
+            <option value="Swimming">🏊 Swimming</option>
+            <option value="Strength Training">💪 Strength Training</option>
+            <option value="Yoga">🧘 Yoga</option>
+            <option value="Dancing">💃 Dancing</option>
+            <option value="Basketball">🏀 Basketball</option>
+            <option value="Soccer">⚽ Soccer</option>
+            <option value="Tennis">🎾 Tennis</option>
+            <option value="Gymnastics">🤸 Gymnastics</option>
+          </select>
+        </div>
+        
+        <div class="form-group meter-field" id="meterField">
+          <label class="form-label" for="meter">Distance (meters):</label>
+          <input type="number" class="form-control" id="meter" placeholder="How far did you go?">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="duration">Workout Duration (minutes):</label>
+          <input type="number" class="form-control" id="duration" required placeholder="How long was your workout?">
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          <i class="fas fa-save"></i> Log Activity
+        </button>
+        
+        <div class="form-success" id="formSuccess">
+          <i class="fas fa-check-circle"></i>
+          <p>Activity logged successfully!</p>
+        </div>
+      </form>
+    </div>
+    
+    <div class="card metrics-card">
+      <h2><i class="fas fa-history"></i> Recent Activities</h2>
+      <div class="metrics-list" id="metricsList">
+        <!-- Logged metrics will appear here -->
+      </div>
+    </div>
+    
+    <div class="card chart-container">
+      <h2><i class="fas fa-chart-line"></i> Your Progress</h2>
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-chart="calories">Calories</button>
+        <button class="tab-btn" data-chart="duration">Duration</button>
+        <button class="tab-btn" data-chart="distance">Distance</button>
+      </div>
+      <div class="chart-tabs">
+        <canvas id="metricsChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const activitiesWithMeter = ['Running', 'Walking', 'Hiking', 'Cycling', 'Swimming'];
+    let currentMetrics = [];
+    let currentChartType = 'calories';
+    
+    // Activity icons mapping
+    const activityIcons = {
+      'Running': 'fa-running',
+      'Walking': 'fa-walking',
+      'Hiking': 'fa-hiking',
+      'Cycling': 'fa-biking',
+      'Swimming': 'fa-swimmer',
+      'Strength Training': 'fa-dumbbell',
+      'Yoga': 'fa-om',
+      'Dancing': 'fa-music',
+      'Basketball': 'fa-basketball-ball',
+      'Soccer': 'fa-futbol',
+      'Tennis': 'fa-table-tennis',
+      'Gymnastics': 'fa-child'
+    };
+
+    // Format date helper
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const options = { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+      return date.toLocaleDateString('en-US', options);
+    }
+
+    // Show/hide meter field based on selected activity
+    document.getElementById('activity').addEventListener('change', function() {
+      const selectedActivity = this.value;
+      const meterField = document.getElementById('meterField');
+      if (activitiesWithMeter.includes(selectedActivity)) {
+        meterField.style.display = 'block';
+        document.getElementById('meter').required = true;
+      } else {
+        meterField.style.display = 'none';
+        document.getElementById('meter').required = false;
+      }
+    });
+
+    // Define a function to calculate calories burned
+    function calculateCalories(activity, duration, meter) {
+      let caloriesPerMinute = 0;
+
+      // Set calories burned per minute based on activity type
+      switch (activity) {
+        case 'Running':
+          caloriesPerMinute = 10; // Example value
+          break;
+        case 'Walking':
+          caloriesPerMinute = 5; // Example value
+          break;
+        case 'Cycling':
+          caloriesPerMinute = 8; // Example value
+          break;
+        // Add more activities as needed
+        default:
+          caloriesPerMinute = 0;
+      }
+
+      // Calculate total calories burned
+      return duration * caloriesPerMinute;
+    }
+
+    // Log Activity Form submission
+    const form = document.getElementById('metricsForm');
+    const metricsList = document.getElementById('metricsList');
+    const formSuccess = document.getElementById('formSuccess');
+    let metricsChart;
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const userId = document.getElementById('userId').value;
+      const activity = document.getElementById('activity').value;
+      const meterInput = document.getElementById('meter');
+      const meter = (activitiesWithMeter.includes(activity) && meterInput.value !== "") ? parseInt(meterInput.value) : null;
+      const duration = parseInt(document.getElementById('duration').value);
+      
+      // Calculate calories based on activity and duration
+      const calories = calculateCalories(activity, duration, meter);
+      
+      try {
+        const res = await fetch('http://localhost:3000/logMetrics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId, activity, meter, calories, duration })
+        });
+        const data = await res.json();
+        if (data.message) {
+          // Create a new metric object with current timestamp
+          const newMetric = {
+            id: data.metricId,
+            userId: parseInt(userId),
+            activity,
+            meter,
+            calories,
+            duration,
+            created_at: new Date().toISOString()
+          };
+          currentMetrics.unshift(newMetric);
+          
+          // Show success message
+          formSuccess.style.display = 'block';
+          setTimeout(() => {
+            formSuccess.style.animation = 'fadeOut 0.5s forwards';
+            setTimeout(() => {
+              formSuccess.style.display = 'none';
+              formSuccess.style.animation = '';
+            }, 500);
+          }, 2000);
+          
+          form.reset();
+          document.getElementById('meterField').style.display = 'none';
+          displayMetrics();
+        } else {
+          alert('Error logging activity: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while logging your activity');
+      }
+    });
+    
+    // Tab switching for charts
+    document.querySelectorAll('.tab-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        currentChartType = this.getAttribute('data-chart');
+        updateChart();
+      });
+    });
+    
+    // Display metrics in the list
+    function displayMetrics() {
+      metricsList.innerHTML = '';
+      
+      if (currentMetrics.length === 0) {
+        metricsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-clipboard"></i>
+            <p>No activities logged yet.</p>
+            <small>Your logged activities will appear here.</small>
+          </div>
+        `;
+      } else {
+        currentMetrics.forEach((metric, index) => {
+          const item = document.createElement('div');
+          item.className = 'metric-item';
+          if (index === 0) {
+            item.classList.add('new');
+          }
+          
+          const iconClass = activityIcons[metric.activity] || 'fa-heartbeat';
+          let meterDetail = metric.meter !== null ? 
+            `<div class="metric-detail"><i class="fas fa-route"></i> ${metric.meter}m</div>` : '';
+          
+          item.innerHTML = `
+            <div class="metric-info">
+              <div class="metric-date">${formatDate(metric.created_at)}</div>
+              <div class="metric-activity">
+                <span class="activity-icon"><i class="fas ${iconClass}"></i></span>
+                ${metric.activity}
+              </div>
+              <div class="metric-details">
+                <div class="metric-detail"><i class="fas fa-fire"></i> ${metric.calories} cal</div>
+                <div class="metric-detail"><i class="fas fa-clock"></i> ${metric.duration} min</div>
+                ${meterDetail}
+              </div>
+            </div>
+            <button class="btn btn-danger tooltip" onclick="deleteMetric(${metric.id})">
+              <i class="fas fa-trash"></i>
+              <span class="tooltiptext">Delete record</span>
+            </button>
+          `;
+          metricsList.appendChild(item);
+        });
+      }
+      updateChart();
+    }
+
+    // Update the chart based on selected tab
+    function updateChart() {
+      const chartCanvas = document.getElementById('metricsChart');
+      const ctx = chartCanvas.getContext('2d');
+      
+      if (currentMetrics.length === 0) {
+        if (metricsChart) {
+          metricsChart.destroy();
+        }
+        return;
+      }
+      
+      // Prepare data for chart - take the last 7 entries
+      const chartData = [...currentMetrics].reverse().slice(0, 7).reverse();
+      const labels = chartData.map(metric => {
+        const date = new Date(metric.created_at);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      
+      let data, label, yAxisLabel;
+      
+      switch(currentChartType) {
+        case 'calories':
+          data = chartData.map(metric => metric.calories);
+          label = 'Calories Burned';
+          yAxisLabel = 'Calories';
+          break;
+        case 'duration':
+          data = chartData.map(metric => metric.duration);
+          label = 'Workout Duration';
+          yAxisLabel = 'Minutes';
+          break;
+        case 'distance':
+          data = chartData.map(metric => metric.meter || 0);
+          label = 'Distance';
+          yAxisLabel = 'Meters';
+          break;
+      }
+      
+      if (metricsChart) {
+        metricsChart.destroy();
+      }
+
+      const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+      gradientFill.addColorStop(0, 'rgba(67, 97, 238, 0.3)');
+      gradientFill.addColorStop(1, 'rgba(67, 97, 238, 0.0)');
+      
+      metricsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: label,
+            data: data,
+            borderColor: '#4361ee',
+            borderWidth: 3,
+            pointBackgroundColor: '#4361ee',
+            pointBorderColor: '#fff',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: gradientFill
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              titleFont: { size: 14 },
+              bodyFont: { size: 14 },
+              padding: 12,
+              caretSize: 6,
+              displayColors: false
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 12 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0, 0, 0, 0.05)' },
+              ticks: { font: { size: 12 } },
+              title: { display: true, text: yAxisLabel, font: { size: 14 } }
+            }
+          },
+          animation: { duration: 1000, easing: 'easeOutQuart' }
+        }
+      });
+    }
+
+    // Delete metric function using DELETE endpoint
+    async function deleteMetric(id) {
+      if (confirm('Are you sure you want to delete this activity?')) {
+        try {
+          const res = await fetch(`http://localhost:3000/metrics/${id}`, {
+            method: 'DELETE'
+          });
+          const data = await res.json();
+          if (data.message) {
+            // Remove the metric from the currentMetrics array
+            currentMetrics = currentMetrics.filter(metric => metric.id !== id);
+            displayMetrics();
+          } else {
+            alert('Error deleting metric: ' + data.error);
+          }
+        } catch (error) {
+          console.error('Error deleting metric:', error);
+          alert('An error occurred while deleting the activity');
+        }
+      }
+    }
+
+    // Load metrics on page load
+    window.onload = async function() {
+      const userId = document.getElementById('userId').value;
+      try {
+        const res = await fetch(`http://localhost:3000/metrics/${userId}`);
+        currentMetrics = await res.json();
+        displayMetrics();
+      } catch (error) {
+        console.error('Error loading metrics:', error);
+        metricsList.innerHTML = '<p>Error loading your activities. Please try again later.</p>';
+      }
+    };
+  </script>
+</body>
+</html>

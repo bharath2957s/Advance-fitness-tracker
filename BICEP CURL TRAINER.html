@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Workout Pro</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6C5CE7;
+      --secondary: #a29bfe;
+      --accent: #00cec9;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --dark: #2d3436;
+      --light: #dfe6e9;
+      --white: #ffffff;
+      --black: #0a0a0a;
+      --gradient: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      --card-bg: rgba(45, 52, 54, 0.8);
+      --border-radius: 16px;
+      --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--dark);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .app-container {
+      display: flex;
+      width: 1000px;
+      height: 600px;
+      background: rgba(15, 15, 25, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: rgba(30, 30, 45, 0.9);
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .app-logo i {
+      font-size: 32px;
+      color: var(--accent);
+      margin-right: 12px;
+    }
+
+    .app-logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--accent), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stats-section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title i {
+      margin-right: 8px;
+    }
+
+    .stats-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .stats-card-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .stats-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .stats-icon i {
+      font-size: 18px;
+      color: var(--white);
+    }
+
+    .stats-label {
+      font-size: 14px;
+      color: var(--light);
+    }
+
+    .stats-value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .workout-history {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .workout-history::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .workout-history::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    .workout-history::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .history-item:hover {
+      background: rgba(60, 60, 75, 0.8);
+    }
+
+    .history-date {
+      font-size: 14px;
+      color: var(--light);
+    }
+
+    .history-reps {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .main-content {
+      flex-grow: 1;
+      position: relative;
+      background: rgba(20, 20, 35, 0.7);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .workout-title {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .timer-display {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 15px;
+      border-radius: 10px;
+    }
+
+    .timer-display i {
+      color: var(--accent);
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    .timer-text {
+      font-size: 24px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .video-container {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .video-feed, #overlay {
+      border-radius: 12px;
+      width: 560px;
+      height: 400px;
+      object-fit: cover;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    #overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .rep-indicator {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .rep-indicator i {
+      color: var(--primary);
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    .rep-count {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .stage-indicator {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 10px;
+    }
+
+    .stage-text {
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .progress-container {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--accent), var(--primary));
+      border-radius: 6px;
+      transition: width 0.3s ease-out;
+    }
+
+    .progress-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--light);
+    }
+
+    .controls {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border-radius: 12px;
+      border: none;
+      background: var(--card-bg);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn i {
+      margin-right: 10px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: #5d4ed6;
+      transform: translateY(-3px);
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(70, 70, 85, 0.8);
+      transform: translateY(-3px);
+    }
+
+    /* Animation for reps counter */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    /* Animation for progress bar */
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px var(--primary); }
+      50% { box-shadow: 0 0 20px var(--primary); }
+      100% { box-shadow: 0 0 5px var(--primary); }
+    }
+
+    .glow {
+      animation: glow 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="app-logo">
+        <i class="fas fa-dumbbell"></i>
+        <h1>AI Workout Pro</h1>
+      </div>
+
+      <div class="stats-section">
+        <h2 class="section-title">
+          <i class="fas fa-chart-bar"></i>
+          Current Session
+        </h2>
+
+        <div class="stats-card">
+          <div class="stats-card-left">
+            <div class="stats-icon">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div>
+              <div class="stats-label">Repetitions</div>
+            </div>
+          </div>
+          <div class="stats-value" id="sidebar-reps">0</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-card-left">
+            <div class="stats-icon">
+              <i class="fas fa-fire-alt"></i>
+            </div>
+            <div>
+              <div class="stats-label">Calories</div>
+            </div>
+          </div>
+          <div class="stats-value" id="calories">0</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-card-left">
+            <div class="stats-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div>
+              <div class="stats-label">Avg. Rep Time</div>
+            </div>
+          </div>
+          <div class="stats-value" id="avg-rep-time">0.0s</div>
+        </div>
+      </div>
+
+      <div class="workout-history">
+        <h2 class="section-title">
+          <i class="fas fa-history"></i>
+          Recent Workouts
+        </h2>
+
+        <div class="history-item">
+          <span class="history-date">Today, 9:30 AM</span>
+          <span class="history-reps">24 reps</span>
+        </div>
+
+        <div class="history-item">
+          <span class="history-date">Yesterday, 8:15 PM</span>
+          <span class="history-reps">18 reps</span>
+        </div>
+
+        <div class="history-item">
+          <span class="history-date">May 7, 10:45 AM</span>
+          <span class="history-reps">30 reps</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1 class="workout-title">BICEP CURL TRAINER</h1>
+        <div class="timer-display">
+          <i class="fas fa-stopwatch"></i>
+          <span class="timer-text" id="time">00:00:00</span>
+        </div>
+      </div>
+
+      <div class="video-container">
+        <video id="video" class="video-feed" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+
+        <div class="rep-indicator">
+          <i class="fas fa-sync-alt"></i>
+          <span class="rep-count" id="reps">0</span>
+        </div>
+
+        <div class="stage-indicator">
+          <span class="stage-text" id="stage">-</span>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-text" id="progress-text">0%</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-secondary">
+          <i class="fas fa-camera"></i>
+          Screenshot
+        </button>
+        <button class="btn btn-primary" id="pause-btn">
+          <i class="fas fa-pause"></i>
+          Pause
+        </button>
+        <button class="btn btn-secondary">
+          <i class="fas fa-cog"></i>
+          Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+    const repCountElement = document.getElementById('reps');
+    const sidebarRepsElement = document.getElementById('sidebar-reps');
+    const caloriesElement = document.getElementById('calories');
+    const avgRepTimeElement = document.getElementById('avg-rep-time');
+    
+    // Set canvas dimensions to match the video container dimensions
+    canvas.width = 560; 
+    canvas.height = 400;
+    
+    let reps = 0, stage = null;
+    let lastRepTime = 0;
+    let repTimes = [];
+    const angleMin = 25, angleMax = 178;
+    let isPaused = false;
+    
+    // Initialize calorie counter
+    let calories = 0;
+    const CALORIES_PER_REP = 0.35; // Approximate calories burned per bicep curl
+
+    const pauseBtn = document.getElementById('pause-btn');
+    pauseBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      if (isPaused) {
+        pauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+        video.pause();
+      } else {
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        video.play();
+      }
+    });
+
+    function startTimer() {
+      const start = performance.now();
+      function update() {
+        if (!isPaused) {
+          const elapsed = performance.now() - start;
+          const ms = Math.floor(elapsed % 1000);
+          const s = Math.floor((elapsed / 1000) % 60);
+          const m = Math.floor((elapsed / (1000 * 60)) % 60);
+          const h = Math.floor(elapsed / (1000 * 60 * 60));
+          document.getElementById('time').textContent = 
+            String(h).padStart(2, '0')+ ':' +
+            String(m).padStart(2, '0')+ ':' +
+            String(s).padStart(2, '0');
+        }
+        requestAnimationFrame(update);
+      }
+      update();
+    }
+
+    function calculateAngle(a, b, c) {
+      const ab = { x: a.x - b.x, y: a.y - b.y };
+      const cb = { x: c.x - b.x, y: c.y - b.y };
+      const dot = ab.x * cb.x + ab.y * cb.y;
+      const mag = Math.hypot(ab.x, ab.y) * Math.hypot(cb.x, cb.y);
+      let angle = Math.acos(dot / mag) * 180 / Math.PI;
+      if (angle > 180) angle = 360 - angle;
+      return angle;
+    }
+
+    function updateAvgRepTime() {
+      if (repTimes.length === 0) return;
+      const sum = repTimes.reduce((a, b) => a + b, 0);
+      const avg = sum / repTimes.length;
+      avgRepTimeElement.textContent = avg.toFixed(1) + 's';
+    }
+
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        await video.play();
+      } catch (err) {
+        console.error("Error accessing camera: ", err);
+        alert("Unable to access camera. Please ensure you have granted permission.");
+      }
+    }
+
+    const pose = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+    pose.onResults(onResults);
+
+    function onResults(results) {
+      if (isPaused) return;
+      
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      if (results.poseLandmarks) {
+        // Draw pose landmarks with improved styling
+        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
+            {color: '#6C5CE7', lineWidth: 4});
+        drawLandmarks(ctx, results.poseLandmarks,
+            {color: '#00cec9', lineWidth: 2, radius: 4});
+
+        const lm = results.poseLandmarks;
+        const shoulder = lm[11], elbow = lm[13], wrist = lm[15];
+        const angle = calculateAngle(shoulder, elbow, wrist);
+        
+        // Improved rep counting logic
+        if (angle > 140) {
+          stage = 'UP';
+          
+          // Calculate time for this rep if we're coming from down position
+          if (lastRepTime > 0) {
+            const currentTime = performance.now();
+            const repTime = (currentTime - lastRepTime) / 1000; // Convert to seconds
+            repTimes.push(repTime);
+            updateAvgRepTime();
+            lastRepTime = 0;
+          }
+        }
+        
+        if (angle < 60 && stage === 'UP') {
+          stage = 'DOWN';
+          reps++;
+          
+          // Add animation class to the rep counter
+          repCountElement.classList.add('pulse');
+          setTimeout(() => {
+            repCountElement.classList.remove('pulse');
+          }, 500);
+          
+          // Update calories
+          calories += CALORIES_PER_REP;
+          caloriesElement.textContent = Math.floor(calories);
+          
+          // Record timestamp for this down position
+          lastRepTime = performance.now();
+          
+          // Update rep counters
+          repCountElement.textContent = reps;
+          sidebarRepsElement.textContent = reps;
+        }
+
+        // Calculate and update progress
+        const progress = ((angle - angleMin) / (angleMax - angleMin)) * 100;
+        const progressFill = document.getElementById('progress-fill');
+        progressFill.style.width = progress + '%';
+        document.getElementById('progress-text').textContent = Math.round(progress) + '%';
+        
+        // Add glow effect when progress is high
+        if (progress > 80) {
+          progressFill.classList.add('glow');
+        } else {
+          progressFill.classList.remove('glow');
+        }
+        
+        // Update stage display
+        document.getElementById('stage').textContent = stage || '-';
+      }
+      
+      ctx.restore();
+    }
+
+    (async () => {
+      await initCamera();
+      startTimer();
+      setInterval(async () => {
+        if (!isPaused) {
+          await pose.send({ image: video });
+        }
+      }, 100);
+    })();
+  </script>
+</body>
+</html>

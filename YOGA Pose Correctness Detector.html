@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>Yoga Pose Correctness Detector</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #6ee2f5 0%, #6454f0 100%);
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    header {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      margin: 20px 0;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+    main {
+      width: 100%;
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease;
+    }
+    main:hover {
+      transform: translateY(-5px);
+    }
+    #pose-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a3c34;
+      margin-bottom: 16px;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+    #target-pose-image {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      object-fit: cover;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+    #target-pose-image:hover {
+      transform: scale(1.02);
+    }
+    #video-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 4 / 3;
+      border: 8px solid #e0e0e0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+      transition: border-color 0.4s ease, transform 0.3s ease;
+    }
+    #video-container.correct {
+      border-color: #34c759;
+      transform: scale(1.02);
+    }
+    #video-container.incorrect {
+      border-color: #ff3b30;
+    }
+    #video, #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+    }
+    #video {
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+    #overlay {
+      pointer-events: none;
+    }
+    #feedback {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a3c34;
+      min-height: 32px;
+      text-align: center;
+      margin-bottom: 12px;
+      transition: color 0.3s ease;
+    }
+    #progress-bar-container {
+      width: 100%;
+      max-width: 400px;
+      height: 14px;
+      background: #f0f0f0;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #34c759, #40c4ff);
+      border-radius: 14px;
+      width: 0;
+      transition: width 0.3s ease;
+    }
+    .completed-message {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #34c759;
+      text-align: center;
+      margin-top: 16px;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 480px) {
+      header {
+        font-size: 2rem;
+      }
+      main {
+        max-width: 95vw;
+        padding: 16px;
+      }
+      #target-pose-image, #video-container {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Yoga Pose Correctness Detector</header>
+  <main>
+    <div id="pose-name" aria-live="polite" aria-atomic="true">Loading poses...</div>
+    <img id="target-pose-image" alt="Target yoga pose image" />
+    <div id="video-container" aria-label="Your camera feed and pose overlay" role="region" aria-live="polite" aria-atomic="true">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay" aria-hidden="true"></canvas>
+    </div>
+    <div id="feedback" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    <div id="progress-bar-container" aria-hidden="true">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="completed-message" class="completed-message" style="display:none;">🎉 All poses completed! Amazing work!</div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.9.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1646424915/pose.js"></script>
+
+  <script>
+  (async () => {
+    const poseNameElem = document.getElementById('pose-name');
+    const poseImageElem = document.getElementById('target-pose-image');
+    const videoContainer = document.getElementById('video-container');
+    const videoElem = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay.getContext('2d');
+    const feedbackElem = document.getElementById('feedback');
+    const progressBar = document.getElementById('progress-bar');
+    const completedMessage = document.getElementById('completed-message');
+
+    const HOLD_TIME = 3000;
+    const MATCH_THRESHOLD = 0.78;
+
+    const poses = [
+      { name: "Mountain Pose (Tadasana)", img: "https://cdn.pixabay.com/photo/2017/08/25/13/38/yoga-2670544_960_720.jpg" },
+      { name: "Downward Dog (Adho Mukha Svanasana)", img: "https://cdn.pixabay.com/photo/2018/12/27/07/27/woman-3899557_960_720.jpg" },
+      //{ name: "Warrior II (Virabhadrasana II)", img: "https://cdn.pixabay.com/photo/2017/09/16/20/00/woman-2756052_960_720.jpg" },
+      { name: "Tree Pose (Vrikshasana)", img: "https://cdn.pixabay.com/photo/2017/01/31/22/39/yoga-2024216_960_720.jpg" },
+      { name: "Child's Pose (Balasana)", img: "https://cdn.pixabay.com/photo/2016/03/09/09/30/yoga-1245944_960_720.jpg" },
+      { name: "Bridge Pose (Setu Bandha Sarvangasana)", img: "https://cdn.pixabay.com/photo/2017/06/04/10/37/woman-2375468_960_720.jpg" },
+      { name: "Cobra Pose (Bhujangasana)", img: "https://cdn.pixabay.com/photo/2017/08/25/22/15/yoga-2688616_960_720.jpg" },
+      { name: "Boat Pose (Navasana)", img: "https://cdn.pixabay.com/photo/2017/03/16/08/16/yoga-2148131_960_720.jpg" },
+      { name: "Seated Forward Fold (Paschimottanasana)", img: "https://cdn.pixabay.com/photo/2017/05/08/15/09/yoga-2295589_960_720.jpg" },
+      { name: "Triangle Pose (Trikonasana)", img: "https://cdn.pixabay.com/photo/2020/05/15/13/25/yoga-5173447_960_720.jpg" }
+    ];
+
+    const poseAngleDefinitions = [
+      {name:"Mountain Pose (Tadasana)", angles:[
+        {joints:['left_shoulder','left_elbow','left_wrist'], min:150, max:180}, 
+        {joints:['right_shoulder','right_elbow','right_wrist'], min:150, max:180},
+        {joints:['left_hip','left_knee','left_ankle'], min:160, max:180},
+        {joints:['right_hip','right_knee','right_ankle'], min:160, max:180}
+      ]},
+      {name:"Downward Dog (Adho Mukha Svanasana)", angles:[
+        {joints:['left_wrist','left_elbow','left_shoulder'], min:150, max:180},
+        {joints:['right_wrist','right_elbow','right_shoulder'], min:150, max:180},
+        {joints:['left_hip','left_knee','left_ankle'], min:150, max:180},
+        {joints:['right_hip','right_knee','right_ankle'], min:150, max:180},
+        {joints:['left_shoulder','left_hip','left_knee'], min:80, max:110},
+        {joints:['right_shoulder','right_hip','right_knee'], min:80, max:110},
+      ]},
+      
+      {name:"Tree Pose (Vrikshasana)", angles:[
+        {joints:['left_hip','left_knee','left_ankle'], min:30, max:90},
+        {joints:['right_hip','right_knee','right_ankle'], min:150, max:180},
+        {joints:['left_shoulder','left_elbow','left_wrist'], min:160, max:180},
+        {joints:['right_shoulder','right_elbow','right_wrist'], min:160, max:180}
+      ]},
+      {name:"Child's Pose (Balasana)", angles:[
+        {joints:['left_hip','left_knee','left_ankle'], min:80, max:100},
+        {joints:['right_hip','right_knee','right_ankle'], min:80, max:100},
+        {joints:['left_wrist','left_elbow','left_shoulder'], min:70, max:110},
+        {joints:['right_wrist','right_elbow','right_shoulder'], min:70, max:110}
+      ]},
+      {name:"Bridge Pose (Setu Bandha Sarvangasana)", angles:[
+        {joints:['left_shoulder','left_hip','left_knee'], min:90, max:120},
+        {joints:['right_shoulder','right_hip','right_knee'], min:90, max:120},
+        {joints:['left_hip','left_knee','left_ankle'], min:70, max:110},
+        {joints:['right_hip','right_knee','right_ankle'], min:70, max:110}
+      ]},
+      {name:"Cobra Pose (Bhujangasana)", angles:[
+        {joints:['left_elbow','left_shoulder','left_hip'], min:160, max:180},
+        {joints:['right_elbow','right_shoulder','right_hip'], min:160, max:180},
+        {joints:['left_hip','left_knee','left_ankle'], min:160, max:180},
+        {joints:['right_hip','right_knee','right_ankle'], min:160, max:180}
+      ]},
+      {name:"Boat Pose (Navasana)", angles:[
+        {joints:['left_hip','left_knee','left_ankle'], min:70, max:100},
+        {joints:['right_hip','right_knee','right_ankle'], min:70, max:100},
+        {joints:['left_shoulder','left_elbow','left_wrist'], min:140, max:180},
+        {joints:['right_shoulder','right_elbow','right_wrist'], min:140, max:180}
+      ]},
+      {name:"Seated Forward Fold (Paschimottanasana)", angles:[
+        {joints:['left_hip','left_knee','left_ankle'], min:100, max:130},
+        {joints:['right_hip','right_knee','right_ankle'], min:100, max:130},
+        {joints:['left_shoulder','left_hip','left_knee'], min:140, max:180},
+        {joints:['right_shoulder','right_hip','right_knee'], min:140, max:180}
+      ]},
+      {name:"Triangle Pose (Trikonasana)", angles:[
+        {joints:['left_hip','left_knee','left_ankle'], min:160, max:180},
+        {joints:['right_hip','right_knee','right_ankle'], min:70, max:110},
+        {joints:['left_shoulder','left_hip','left_knee'], min:70, max:110},
+        {joints:['right_shoulder','right_hip','right_knee'], min:160, max:180}
+      ]}
+    ];
+
+    function getKeypoint(pose, name) {
+      return pose.keypoints.find(kp => kp.name === name);
+    }
+
+    function angleBetweenPoints(A, B, C) {
+      const vectorBA = { x: A.x - B.x, y: A.y - B.y };
+      const vectorBC = { x: C.x - B.x, y: C.y - B.y };
+      const dotProduct = vectorBA.x * vectorBC.x + vectorBA.y * vectorBC.y;
+      const magnitudeBA = Math.sqrt(vectorBA.x ** 2 + vectorBA.y ** 2);
+      const magnitudeBC = Math.sqrt(vectorBC.x ** 2 + vectorBC.y ** 2);
+      const cosTheta = dotProduct / (magnitudeBA * magnitudeBC);
+      const angle = Math.acos(Math.max(-1, Math.min(1, cosTheta))) * (180 / Math.PI);
+      return isNaN(angle) ? null : angle;
+    }
+
+    function calcAngle(pose, jointNames) {
+      const [A, B, C] = jointNames.map(j => getKeypoint(pose, j));
+      if (!A || !B || !C || A.score < 0.3 || B.score < 0.3 || C.score < 0.3) return null;
+      return angleBetweenPoints(A, B, C);
+    }
+
+    function checkPoseMatch(detectedPose, targetPoseDef) {
+      let matches = 0;
+      const required = targetPoseDef.angles.length;
+      for (let def of targetPoseDef.angles) {
+        const angle = calcAngle(detectedPose, def.joints);
+        if (angle === null) continue;
+        if (angle >= def.min && angle <= def.max) matches++;
+      }
+      return (matches / required) >= MATCH_THRESHOLD;
+    }
+
+    function drawSkeleton(pose) {
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      if (!pose) return;
+      ctx.fillStyle = '#ff2d55';
+      ctx.strokeStyle = '#40c4ff';
+      ctx.lineWidth = 6;
+
+      pose.keypoints.forEach(kp => {
+        if (kp.score >= 0.3) {
+          ctx.beginPath();
+          ctx.arc(kp.x, kp.y, 10, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      });
+
+      const adjacentPairs = poseDetection.util.getAdjacentPairs(poseDetection.SupportedModels.MoveNet);
+      adjacentPairs.forEach(([i, j]) => {
+        const kp1 = pose.keypoints[i];
+        const kp2 = pose.keypoints[j];
+        if (kp1.score > 0.3 && kp2.score > 0.3) {
+          ctx.beginPath();
+          ctx.moveTo(kp1.x, kp1.y);
+          ctx.lineTo(kp2.x, kp2.y);
+          ctx.stroke();
+        }
+      });
+    }
+
+    function updateUIForMatch(isMatch, holdRatio) {
+      videoContainer.classList.remove('correct', 'incorrect');
+      if (isMatch) {
+        videoContainer.classList.add('correct');
+        feedbackElem.textContent = holdRatio < 1 
+          ? `Great job! Hold for ${Math.ceil((HOLD_TIME * (1 - holdRatio))/1000)}s...` 
+          : 'Pose perfected! Next one...';
+        feedbackElem.style.color = '#34c759';
+        progressBar.style.width = `${Math.min(holdRatio * 100, 100)}%`;
+      } else {
+        videoContainer.classList.add('incorrect');
+        feedbackElem.textContent = 'Adjust your pose to match the target.';
+        feedbackElem.style.color = '#ff3b30';
+        progressBar.style.width = '0%';
+      }
+    }
+
+    async function loadDetector() {
+      const config = {
+        modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+      };
+      return await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, config);
+    }
+
+    async function detectPose() {
+      if (!detector || !videoElem.srcObject) return;
+      const posesDetected = await detector.estimatePoses(videoElem, { maxPoses: 1, flipHorizontal: true });
+      if (posesDetected.length === 0) {
+        updateUIForMatch(false, 0);
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        poseMatchStart = null;
+        return;
+      }
+      const pose = posesDetected[0];
+      drawSkeleton(pose);
+      const targetPoseDef = poseAngleDefinitions[currentIdx];
+      const matched = checkPoseMatch(pose, targetPoseDef);
+
+      if (matched) {
+        if (!poseMatchStart) poseMatchStart = performance.now();
+        const elapsed = performance.now() - poseMatchStart;
+        const ratio = elapsed / HOLD_TIME;
+        updateUIForMatch(true, ratio > 1 ? 1 : ratio);
+        if (elapsed >= HOLD_TIME) {
+          nextPose();
+          poseMatchStart = null;
+        }
+      } else {
+        updateUIForMatch(false, 0);
+        poseMatchStart = null;
+      }
+    }
+
+    function nextPose() {
+      currentIdx++;
+      if (currentIdx >= poses.length) {
+        showCompletion();
+        clearInterval(detectionInterval);
+      } else {
+        updatePoseUI();
+      }
+    }
+
+    function updatePoseUI() {
+      poseNameElem.textContent = poses[currentIdx].name;
+      poseImageElem.src = poses[currentIdx].img;
+      poseImageElem.alt = poses[currentIdx].name;
+      videoContainer.classList.remove('correct', 'incorrect');
+      feedbackElem.textContent = '';
+      progressBar.style.width = '0%';
+    }
+
+    function showCompletion() {
+      completedMessage.style.display = 'block';
+      poseNameElem.style.display = 'none';
+      poseImageElem.style.display = 'none';
+      videoContainer.classList.add('correct');
+      feedbackElem.textContent = '';
+      progressBar.style.width = '100%';
+    }
+
+    async function setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 640, height: 480 },
+          audio: false
+        });
+        videoElem.srcObject = stream;
+        return new Promise(resolve => {
+          videoElem.onloadedmetadata = () => {
+            videoElem.play();
+            overlay.width = videoElem.videoWidth;
+            overlay.height = videoElem.videoHeight;
+            resolve();
+          };
+        });
+      } catch (err) {
+        feedbackElem.textContent = 'Camera access denied. Please allow camera permissions.';
+        feedbackElem.style.color = '#ff3b30';
+        throw err;
+      }
+    }
+
+    let currentIdx = 0;
+    let poseMatchStart = null;
+    let detector, detectionInterval;
+
+    try {
+      poseNameElem.textContent = 'Loading camera...';
+      await setupCamera();
+      poseNameElem.textContent = 'Loading pose detector...';
+      detector = await loadDetector();
+      updatePoseUI();
+      detectionInterval = setInterval(detectPose, 150);
+    } catch (err) {
+      console.error('Initialization failed:', err);
+    }
+  })();
+  </script>
+</body>
+</html>
