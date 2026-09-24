@@ -1,9 +1,8 @@
-# Advance-fitness-tracker
-AI Workout Pro &amp; Fitness Tracker is a full-stack fitness application developed to assist users in monitoring, managing, and improving their overall health and fitness journey. Combining modern UI design with backend integration and AI capabilities, this app creates an all-in-one wellness platform tailored for both beginners and fitness enthusiasts.
-One of the standout features is the Yoga Pose Correctness Detector, which uses machine learning and computer vision to analyze a user's posture in real time and give feedback on accuracy—ideal for those practicing yoga at home without a trainer. Similarly, the Bicep Curl Trainer allows users to visually track their repetitions and rep quality using an engaging, animated interface.
 # 💪 AI Workout Pro & Fitness Tracker
 
-This is a full-featured fitness web application developed by a team of enthusiastic developers. It helps users manage their workout sessions, track diet, monitor yoga pose accuracy, and much more — all enhanced with a clean UI and backend integrations.
+🌐 **Live Demo:** [Open Application](YOUR_VERCEL_DEPLOYMENT_LINK)
+
+AI Workout Pro & Fitness Tracker is a full-stack fitness application developed to help users monitor, manage, and improve their overall health and fitness journey. It combines a modern user interface, backend integration, computer vision, and AI-powered features to provide an all-in-one fitness platform for beginners and fitness enthusiasts.
 
 ## 🚀 Features
 
